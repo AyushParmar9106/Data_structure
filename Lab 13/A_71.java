@@ -1,100 +1,154 @@
+package Data_Structure_CIR_LL;
 
-import java.util.Scanner;
+public class CIR_LinkedList {
+    class Node {
+        int info;
+        Node link;
 
-class Node {
-    int data;
-    Node next;
-
-    Node(int data) {
-        this.data = data;
-        this.next = null;
+        public Node(int info) {
+            this.info = info;
+            this.link = null;
+        }
     }
-}
 
-class Circular_Linked_List {
-    Node first = null;
-    Node last = null;
+    public Node first = null;
+    public Node last = null;
 
-    public void InsertFirst(int data) {
-        Node temp1 = new Node(data);
+    public void insertAtFirst(int data) {
+        Node newNode = new Node(data);
+
         if (first == null) {
-            first = last = temp1;
-            last.next = first;
+            newNode.link = newNode;
+            first = newNode;
+            last = newNode;
+        } else {
+            newNode.link = first;
+            last.link = newNode;
+            first = newNode;
         }
-        temp1.next = first;
-        first = temp1;
-        last.next = first;
     }
 
-    public void Insertend(int data) {
-        Node temp2 = new Node(data);
-        if (last == null) {
-            last = first = temp2;
-            first.next = last;
+    public void insertAtLast(int data) {
+        Node newNode = new Node(data);
+
+        if (first == null) {
+            newNode.link = newNode;
+            first = newNode;
+            last = newNode;
+            return;
         }
-        temp2.next = last;
-        last = temp2;
-        first.next = last;
+        newNode.link = first;
+        last.link = newNode;
+        last = newNode;
     }
 
-    public void insertPos(int data,int pos){
+    public void insertInOrder(int data) {
+        Node newNode = new Node(data);
+
+        if (first == null) {
+            newNode.link = newNode;
+            first = newNode;
+            last = newNode;
+            return;
+        }
+
+        if (newNode.info <= first.info) {
+            newNode.link = first;
+            last.link = newNode;
+            first = newNode;
+            return;
+        }
         Node save = first;
-        int count = 1;
-        Node temp3 = new Node(data);
-        while (count<pos-1) {
-            save = save.next;
-            count++;
+        while (save != last && newNode.info >= save.link.info) {
+            save = save.link;
         }
-        temp3.next=save.next;
-        save.next=temp3;
-       
-
+        newNode.link = save.link;
+        save.link = newNode;
+        if (save == last) {
+            last = newNode;
+        }
     }
 
-    public void display() {
+    public void deleteNode(int data) {
+        if (first == null) {
+            System.out.println("LinkedList Is Empty");
+            return;
+        }
         Node save = first;
-        while (save.next != first) {
-            System.out.print(save.data + "->");
-            save = save.next;
+        Node pred = null;
+        while (save != last && save.info != data) {
+            pred = save;
+            save = save.link;
         }
-        System.out.println(save.data);
-    }
-
-}
-
-public class A_71 {
-    public static void main(String[] args) {
-        Circular_Linked_List s = new Circular_Linked_List();
-
-        Scanner sc = new Scanner(System.in);
-        while (true) {
-            System.out.println("enter 1 to insert at first:");
-            System.out.println("enter 2 to insert at last:");
-            System.out.println("enter 3 to insert at position:");
-            System.out.println("enter 4 to display:");
-
-            int choice = sc.nextInt();
-            switch (choice) {
-                case 1:
-                    System.out.println("enter data:");
-                    int data = sc.nextInt();
-                    s.InsertFirst(data);
-                    break;
-                case 2:
-                    System.out.println("enter data:");
-                    int data1 = sc.nextInt();
-                    s.Insertend(data1);
-                    break;
-                case 3:
-                    System.out.println("enter pos");
-                    int pos=sc.nextInt();
-                    System.out.println("enter data to enter");
-                    int data2 = sc.nextInt();
-                    s.insertPos(data2,pos);
-                    break;
-                case 4:
-                    s.display();
+        if (save.info != data) {
+            System.out.println("Node Not Found");
+            return;
+        }
+        if (first == last) {
+            first = null;
+            last = null;
+        } else if (save == first) {
+            first = first.link;
+            last.link = first;
+        } else {
+            pred.link = save.link;
+            if (save == last) {
+                last = pred;
             }
         }
+        System.out.println("After deleting a Node ->");
+        displayLinkedList();
+    }
+
+    public int countNode() {
+        int count = 0;
+        if (first == null) {
+            return count;
+        }
+        Node save = first;
+        while (save != last) {
+            count++;
+            save = save.link;
+        }
+        count++;
+        return count;
+    }
+
+    public void displayLinkedList() {
+        if (first == null) {
+            System.out.println("LinkedList is empty");
+            return;
+        }
+        Node save = first;
+        while (save != last) {
+            System.out.print(save.info);
+            if (save.link != null) {
+                System.out.print("->");
+            }
+            save = save.link;
+        }
+        System.out.print(save.info);
+        System.out.println();
+    }
+
+    public CIR_LinkedList splitIntoTwoHalves() {
+        CIR_LinkedList l2 = new CIR_LinkedList();
+        int count = Math.ceilDiv(this.countNode(), 2);
+
+        int cuurrentPos = 1;
+        Node save = first;
+        while (cuurrentPos < count) {
+            save = save.link;
+            cuurrentPos++;
+        }
+        Node tempLast = save;
+        save = save.link;
+        while (save != first) {
+            l2.insertAtLast(save.info);
+            save = save.link;
+        }
+        tempLast.link = first;
+        last = tempLast;
+        return l2;
     }
 }
