@@ -1,73 +1,143 @@
 import java.util.Scanner;
 
+public class A_77 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String s = "";
+        int val;
+        BinarySearchTree bst = new BinarySearchTree();
+
+        while (!s.equals("-1")) {
+            System.out.println("Enter 1 to insert a node : ");
+            System.out.println("Enter 2 to search a node : ");
+            System.out.println("Enter 3 to delete a node : ");
+            System.out.println("Enter -1 to exit");
+            s = sc.next();
+
+            switch (s) {
+                case "1":
+                    System.out.print("Enter the value you want to insert : ");
+                    val = sc.nextInt();
+                    bst.insert(val);
+                    break;
+                case "2":
+                    System.out.print("Enter the value you want to search : ");
+                    val = sc.nextInt();
+                    bst.search(val);
+                    break;
+                case "3":
+                    System.out.print("Enter the value you want to delete : ");
+                    val = sc.nextInt();
+                    bst.delete(val);
+                    break;
+                case "-1":
+                    System.out.println("Exiting the loop");
+                    break;
+                default:
+                    System.out.println("Invalid option. Please try again.");
+            }
+        }
+        sc.close();
+    }
+}
 
 class Node {
     int key;
-    Node left; 
-    Node right;
-    public Node(int item) {
-        key = item;
-        left = right = null;
+    Node left, right;
+
+    Node(int data) {
+        key = data;
+        left = null;
+        right = null;
     }
 }
+
 class BinarySearchTree {
     Node root;
-    public void insert(int value) {
-      Node newNode = new Node(value);
+
+    public BinarySearchTree() {
+        root = null;
+    }
+
+   
+    void insert(int data) {
+        root = insertRecord(root, data);
+    }
+
+    public Node insertRecord(Node root, int data) {
         if (root == null) {
-            root = newNode;
-            return;
+            root = new Node(data);
+            return root;
+        }
+        if (data < root.key) {
+            root.left = insertRecord(root.left, data);
+        } else if (data > root.key) {
+            root.right = insertRecord(root.right, data);
+        }
+        return root;
+    }
+
+    
+    void search(int data) {
+        int searchLevel = 0;
+        boolean found = searchRecord(root, data, searchLevel);
+        if (!found) {
+            System.out.println("The value is not found");
+        }
+    }
+
+    boolean searchRecord(Node root, int data, int level) {
+        if (root == null) {
+            return false;
+        }
+        if (data == root.key) {
+            System.out.println("The value is available at level " + level);
+            return true;
+        } else if (data > root.key) {
+            return searchRecord(root.right, data, level + 1);
+        } else {
+            return searchRecord(root.left, data, level + 1);
+        }
+    }
+
+ 
+    void delete(int data) {
+        root = deleteRecord(root, data);
+    }
+
+    public Node deleteRecord(Node root, int data) {
+        if (root == null) {
+            return root;
         }
 
-       Node current = root;
-        Node parent = null;
-
-        while (true) {
-            parent = current;
-            if (value < current.key) {
-                current = current.left;
-                if (current == null) {
-                    parent.left = newNode;
-                    return;
-                }
-            } else {
-                current = current.right;
-                if (current == null) {
-                    parent.right = newNode;
-                    return;
-                }
+        if (data < root.key) {
+            root.left = deleteRecord(root.left, data);
+        } else if (data > root.key) {
+            root.right = deleteRecord(root.right, data);
+        } else {
+       
+            if (root.left == null) {
+                return root.right;
+            } else if (root.right == null) {
+                return root.left;
             }
-        }
-    }
-    public void inorderTraversal(Node node) {
-        if (node != null) {
-            inorderTraversal(node.left);
-            System.out.print(node.key + " ");
-            inorderTraversal(node.right);
-        }
-    }
-    public void printInorder() {
-        inorderTraversal(root);
-        System.out.println();
-    }
-}
-public class A_77 {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        BinarySearchTree bst = new BinarySearchTree();
 
-        System.out.println("Enter the number of elements you want to insert:");
-        int n = scanner.nextInt();
+        
+            root.key = minValue(root.right);
 
-        System.out.println("Enter the elements:");
-        for (int i = 0; i < n; i++) {
-            int value = scanner.nextInt();
-            bst.insert(value);
+           
+            root.right = deleteRecord(root.right, root.key);
         }
 
-        System.out.println("In-order traversal of the BST:");
-        bst.printInorder();
+        return root;
+    }
 
-        scanner.close();
+    int minValue(Node root) {
+        int minv = root.key;
+        while (root.left != null) {
+            minv = root.left.key;
+            root = root.left;
+        }
+        return minv;
     }
 }
